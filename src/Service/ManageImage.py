@@ -4,7 +4,7 @@ import config
 from math import pi
 
 
-class ManageImage():
+class ManageImage:
 
     def __init__(self):
         return
@@ -163,17 +163,17 @@ class ManageImage():
     def registrationMethodExhaustive(self, imageFixed, imageMoving):
         registration = sitk.ImageRegistrationMethod()
         registration.SetMetricAsMattesMutualInformation(numberOfHistogramBins=50)
-        sample_per_axis = 12
+        samplePerAxis = 12
         if imageFixed.GetDimension() == 2:
             tx = sitk.Euler2DTransform()
-            registration.SetOptimizerAsExhaustive([sample_per_axis // 2, 0, 0])
-            registration.SetOptimizerScales([2.0 * pi / sample_per_axis, 1.0, 1.0])
+            registration.SetOptimizerAsExhaustive([samplePerAxis // 2, 0, 0])
+            registration.SetOptimizerScales([2.0 * pi / samplePerAxis, 1.0, 1.0])
         elif imageFixed.GetDimension() == 3:
             tx = sitk.Euler3DTransform()
             registration.SetOptimizerAsExhaustive(
-                [sample_per_axis // 2, sample_per_axis // 2, sample_per_axis // 4, 0, 0, 0])
+                [samplePerAxis // 2, samplePerAxis // 2, samplePerAxis // 4, 0, 0, 0])
             registration.SetOptimizerScales(
-                [2.0 * pi / sample_per_axis, 2.0 * pi / sample_per_axis, 2.0 * pi / sample_per_axis, 1.0, 1.0, 1.0])
+                [2.0 * pi / samplePerAxis, 2.0 * pi / samplePerAxis, 2.0 * pi / samplePerAxis, 1.0, 1.0, 1.0])
         tx = sitk.CenteredTransformInitializer(imageFixed, imageMoving, tx)
         registration.SetInitialTransform(tx)
         registration.SetInterpolator(sitk.sitkLinear)
