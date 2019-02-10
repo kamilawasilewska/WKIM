@@ -9,6 +9,22 @@ class ManageImage:
     def __init__(self):
         return
 
+    def getImagePath(self, filename):
+        path = os.getcwd() + config.IMG_PATH + filename
+        return path
+
+    def displayResult(self, imageFixed, imageMoving, registrationResult):
+        resampler = sitk.ResampleImageFilter()
+        resampler.SetReferenceImage(imageFixed)
+        resampler.SetInterpolator(sitk.sitkLinear)
+        resampler.SetDefaultPixelValue(1)
+        resampler.SetTransform(registrationResult)
+        out = resampler.Execute(imageMoving)
+        simg1 = sitk.Cast(sitk.RescaleIntensity(imageFixed), sitk.sitkUInt8)
+        simg2 = sitk.Cast(sitk.RescaleIntensity(out), sitk.sitkUInt8)
+        cimg = sitk.Compose(simg1, simg2, simg1 // 2. + simg2 // 2.)
+        sitk.Show(cimg, "ImageRegistration1 Composition")
+
     def readImage(self, filename):
         reader = sitk.ImageFileReader()
         reader.SetImageIO("TIFFImageIO")
@@ -77,7 +93,7 @@ class ManageImage:
         return out
 
     def registrationMethodTranslationWithSampling(self, imageFixed, imageMoving, numberOfBins=24,
-                                                  samplingPercentage=0.10):
+                                                  samplingPercentage=0.1):
         registration = sitk.ImageRegistrationMethod()
         registration.SetMetricAsMattesMutualInformation(numberOfBins)
         registration.SetMetricSamplingPercentage(samplingPercentage, sitk.sitkWallClock)
@@ -180,19 +196,3 @@ class ManageImage:
         registration.AddCommand(sitk.sitkIterationEvent, lambda: self.commandIteration(registration))
         out = registration.Execute(imageFixed, imageMoving)
         return out
-
-    def getImagePath(self, filename):
-        path = os.getcwd() + config.IMG_PATH + filename
-        return path
-
-    def displayResult(self, imageFixed, imageMoving, res):
-        resampler = sitk.ResampleImageFilter()
-        resampler.SetReferenceImage(imageFixed)
-        resampler.SetInterpolator(sitk.sitkLinear)
-        resampler.SetDefaultPixelValue(1)
-        resampler.SetTransform(res)
-        out = resampler.Execute(imageMoving)
-        simg1 = sitk.Cast(sitk.RescaleIntensity(imageFixed), sitk.sitkUInt8)
-        simg2 = sitk.Cast(sitk.RescaleIntensity(out), sitk.sitkUInt8)
-        cimg = sitk.Compose(simg1, simg2, simg1 // 2. + simg2 // 2.)
-        sitk.Show(cimg, "ImageRegistration1 Composition")
